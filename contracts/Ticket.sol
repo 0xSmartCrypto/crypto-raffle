@@ -9,8 +9,8 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
 
 
-/// @title VelvetTicket
-contract VelvetTicket is ERC721Enumerable {
+/// @title RaffleTicket
+contract RaffleTicket is ERC721Enumerable {
 
     /// @notice counters library
     using Counters for Counters.Counter;
@@ -29,7 +29,7 @@ contract VelvetTicket is ERC721Enumerable {
     mapping(uint256 => Item) public items;
 
     /// @notice this contract constructor
-    constructor () ERC721("VelvetTicket", "VT") {}
+    constructor () ERC721("RaffleTicket", "RT") {}
 
     /**
     @notice function to mint ticket NFT on Ethereum

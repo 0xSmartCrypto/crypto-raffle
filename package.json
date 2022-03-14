@@ -1,5 +1,8 @@
 {
-  "name": "hardhat-project",
+  "name": "raffle-contracts",
+  "description": "A set of simple contracts to manage raffles and tickets as ERC721 tokens",
+  "private": true,
+  "author": "0xSmartCrypto <0xSmartCrypto@gmail.com>",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",
     "@nomiclabs/hardhat-etherscan": "^3.0.3",

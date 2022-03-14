@@ -1,3 +1,30 @@
+# Crypto Raffle 
+
+Crypto Raffle demonstrates the use of `RaffleTicket`, a ERC721 contract to encapsulate a raffle ticket, and `RaffleCampaign`, a contract to manage a raffle.
+
+In a raffle,
+- A campaign manager can create a raffle, set the ticket price, and set a deadline when the raffle will end.
+- The campaign manager can set up the raffle with one or more winners
+- Participants can pay for a ticket in ETH and mint a ticket to the raffle in the `frontend`(#TBD)
+- Participants can trade their tickets on OpenSea
+- The campaign manager can select raffle winners by drawing verifiablly random numbers from ChainLink oracles
+- Campaign states and selected are recorded on-chain
+
+
+
+# Campaign 
+
+A campaign has the states {`Active`, `Closed`, `WinnerSelected`}. It's `Active` when the raffle is created, `Closed` when the deadline is reached, and `WinnerSelected` when the winners are selected.
+
+# Smart Contract
+
+The smart contract is deployed to the Rinkeby testnet at:
+
+`<address>`
+
+
+
+Below is the default documentation from the `Advanced Sample Hardhat Project` template.
 # Advanced Sample Hardhat Project
 
 This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.

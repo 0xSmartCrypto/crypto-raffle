@@ -3,7 +3,7 @@ const { ethers } = require("hardhat");
 
 describe("Ticket", function () {
   it("Should return the new ticket's params: campaignId, price, ", async function () {
-    const Ticket = await ethers.getContractFactory("VelvetTicket");
+    const Ticket = await ethers.getContractFactory("RaffleTicket");
     const ticket = await Ticket.deploy({
       price: 10,
       campaignId: 123,
@@ -20,7 +20,7 @@ describe("Ticket", function () {
   });
 
   it("Should have a price", async () => {
-    const Ticket = await ethers.getContractFactory("VelvetTicket");
+    const Ticket = await ethers.getContractFactory("RaffleTicket");
     const ticket = await Ticket.deploy({
       campaignId: 123,
       price: 10,
