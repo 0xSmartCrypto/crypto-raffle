@@ -3,7 +3,6 @@ pragma solidity ^0.8.3;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -40,8 +39,9 @@ contract RaffleTicket is ERC721Enumerable {
     @notice function to mint ticket NFT on Ethereum
     @dev only users not managers.
     @param _campaignName is the short name of the campaign
+    @param _to is the address to which we'll transfer the minted ticket
     */
-    function mintNFT(string memory _campaignName) external returns (uint256) {
+    function mintNFT(string memory _campaignName, address _to) external returns (uint256) {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         
@@ -59,7 +59,7 @@ contract RaffleTicket is ERC721Enumerable {
                     abi.encodePacked(
                         '{"name": "',
                         _campaignName,
-                        '", "description": "A raffle ticket", "image": "data:image/svg+xml;base64,',
+                        '", "description": "The raffle ticket", "image": "data:image/svg+xml;base64,',
                         Base64.encode(bytes(finalSvg)),
                         '","ticketNumber":"',
                         _ticketNumber,
@@ -82,6 +82,8 @@ contract RaffleTicket is ERC721Enumerable {
             uri: finalTokenUri
         });
 
+        _transfer(msg.sender, _to, newItemId);
+
         return newItemId;
     }
 
@@ -95,4 +97,6 @@ contract RaffleTicket is ERC721Enumerable {
         return items[tokenId].uri;
     }
 
+
+    
 }

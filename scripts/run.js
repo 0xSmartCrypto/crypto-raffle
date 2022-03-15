@@ -2,7 +2,7 @@
 const hre = require("hardhat");
 
 async function main() {
-  const [owner, person1] = await hre.ethers.getSigners();
+  const [owner, person1, person2] = await hre.ethers.getSigners();
 
   // 1. Deploy RaffleTicket
   const RaffleTicketContractFactory = await hre.ethers.getContractFactory(
@@ -28,14 +28,14 @@ async function main() {
    */
   const raffleCampaignContract = await RaffleCampaignContractFactory.deploy(
     "Raffle Campaign",
-    128, // 128 blocks
-    hre.ethers.utils.parseEther("0.1"), // 0.1 ether
+    10, // 10 blocks
+    hre.ethers.utils.parseEther("0.01"), // 0.01 ether
     2, // 2 tickets
     1, // 2 winners
     ticketContract.address
   );
   await raffleCampaignContract.deployed();
-  const state = await raffleCampaignContract.getCampaignState();
+  let state = await raffleCampaignContract.getCampaignState();
   console.log(
     "RaffleCampaign deployed: ",
     raffleCampaignContract.address,
@@ -46,12 +46,19 @@ async function main() {
   // 3. Mint ticket as user 1
   await raffleCampaignContract
     .connect(person1)
-    .buyTicket({ value: hre.ethers.utils.parseEther("0.1") });
+    .buyTicket({ value: hre.ethers.utils.parseEther("0.01") });
 
   // 4. Mint ticket as user 2
-  // const t2 = await raffleCampaign.buyTicket();
-  // console.log(t2);
+  await raffleCampaignContract
+    .connect(person2)
+    .buyTicket({ value: hre.ethers.utils.parseEther("0.01") });
+
+  // State should be Closed (sold out)
+  state = await raffleCampaignContract.getCampaignState();
+  console.log("campaign state: ", state);
+
   // 5. Set winners as manager
+
   // 6. Verify campaign states
   // 7. Withdraw funds as owner to another address
 }

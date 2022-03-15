@@ -2,14 +2,13 @@
 pragma solidity ^0.8.3;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "hardhat/console.sol";
 
 /// @title TicketNFT contract interface
 interface ITicketNFT {
-    function mintNFT(string memory tokenURI) external returns (uint256);
+    function mintNFT(string memory tokenURI, address _to) external returns (uint256);
 }
 
 /// @title CampaignState 
@@ -23,7 +22,7 @@ enum CampaignState {
 }
 
 /// @title RaffleCampaign
-contract RaffleCampaign is Ownable {
+contract RaffleCampaign is Ownable, IERC721Receiver {
 
     /// @dev safemath library
     using SafeMath for uint256;
@@ -59,7 +58,7 @@ contract RaffleCampaign is Ownable {
     uint[] public tickets;
 
     /// @notice campaign manager's address
-    address public manager;
+    address payable public manager;
 
     /// @dev mappings of this contract
     mapping (uint => address) public ticketOwner;
@@ -93,7 +92,7 @@ contract RaffleCampaign is Ownable {
         require(_totalTickets > 1 && _totalTickets <= 25000, "Total tickets range 2-25000.");
         require(_totalTickets > _totalWinners, "Tickets should exceed winners.");
 
-        manager = msg.sender;
+        manager = payable(msg.sender);
 
         raffleName = _raffleName;
         ticketPrice = _ticketPriceInWei;
@@ -105,15 +104,13 @@ contract RaffleCampaign is Ownable {
         ticketNFT = ITicketNFT(_ticketNFT);
 
         campaignState = CampaignState.Active;
-        
-        console.log("price is", ticketPrice);
 
         // emit CreateCampaign(campaignFinished, _ticketNFT);
         // emit CampaignActive(campaignFinished, _ticketNFT);
     }
 
     /// @notice forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
-    function onERC721Received(address, address, uint256, bytes memory) external pure returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes memory) override external pure returns (bytes4) {
         return IERC721Receiver.onERC721Received.selector;
     }
 
@@ -125,17 +122,20 @@ contract RaffleCampaign is Ownable {
     function buyTicket() public payable {
         // require(ticketOwner[_ticketNum] == address(0), "Ticket can only be sold once.");
         // require(manager != msg.sender, "Unauthorized to buy ticket.");
-        // require(tickets.length < totalTickets, "All the tickets were sold.");
+        
         require(campaignState == CampaignState.Active, "Campaign is not active.");
         require(campaignState != CampaignState.Closed, "Campaign is closed.");
         require(msg.value >= ticketPrice, "Not enough funds.");
+        // require(tickets.length < totalTickets, "All the tickets were sold.");
 
         // tickets.push(_ticketNum);
         // ticketOwner[_ticketNum] = msg.sender;
         // ownerTicketCount[msg.sender] = ownerTicketCount[msg.sender].add(1);
 
-        uint256 _tokenId = ticketNFT.mintNFT(raffleName);
+        console.log(msg.sender, " wants to buyTicket");
+        uint256 _tokenId = ticketNFT.mintNFT(raffleName, msg.sender);
         console.log("_tokenId bought: ", _tokenId);
+
         // emit TicketBought(_ticketNum, _tokenId, _tokenUri);
     }
 

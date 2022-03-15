@@ -29,6 +29,7 @@ module.exports = {
       accounts: [
         process.env.OWNER_PRIVATE_KEY,
         process.env.PERSON1_PRIVATE_KEY,
+        process.env.PERSON2_PRIVATE_KEY,
       ],
     },
   },
@@ -36,7 +37,7 @@ module.exports = {
     enabled: process.env.REPORT_GAS !== undefined,
     currency: "USD",
   },
-  etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
-  },
+  // etherscan: {
+  //   apiKey: process.env.ETHERSCAN_API_KEY,
+  // },
 };
