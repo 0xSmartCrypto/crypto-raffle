@@ -2,6 +2,7 @@
 const hre = require("hardhat");
 
 async function main() {
+  // eslint-disable-next-line no-unused-vars
   const [owner, person1, person2] = await hre.ethers.getSigners();
 
   // 1. Deploy RaffleTicket
@@ -44,18 +45,22 @@ async function main() {
   );
 
   // 3. Mint ticket as user 1
-  await raffleCampaignContract
+  const t1 = await raffleCampaignContract
     .connect(person1)
     .buyTicket({ value: hre.ethers.utils.parseEther("0.01") });
+  // console.log(t1);
+  console.log("Ticket minted: ", "https://rinkeby.etherscan.io/tx/" + t1.hash);
 
   // 4. Mint ticket as user 2
-  await raffleCampaignContract
+  const t2 = await raffleCampaignContract
     .connect(person2)
     .buyTicket({ value: hre.ethers.utils.parseEther("0.01") });
+  // console.log(t2);
+  console.log("Ticket minted: ", "https://rinkeby.etherscan.io/tx/" + t2.hash);
 
-  // State should be Closed (sold out)
+  // // State should be Closed (sold out)
   state = await raffleCampaignContract.getCampaignState();
-  console.log("campaign state: ", state);
+  // console.log("campaign state: ", state);
 
   // 5. Set winners as manager
 

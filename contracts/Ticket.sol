@@ -29,7 +29,7 @@ contract RaffleTicket is ERC721Enumerable {
     mapping(uint256 => Item) public items;
 
     /// @notice construct svg for ticket nft
-    string public svgPartOne = '<svg xmlns="http://www.w3.org/2000/svg" width="270" height="120" fill="none"><path fill="url(#B)" d="M0 0h270v270H0z"/><defs><filter id="A" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse" height="270" width="120"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity=".625" width="200%" height="200%"/></filter></defs><defs><linearGradient id="B" x1="0" y1="0" x2="270" y2="120" gradientUnits="userSpaceOnUse"><stop stop-color="#ff8844"/><stop offset="1" stop-color="#0cd7e4" stop-opacity=".99"/></linearGradient></defs><text x="32" y="90" font-size="19" fill="#777" filter="url(#A)" font-family="Plus Jakarta Sans,DejaVu Sans,Noto Color Emoji,Apple Color Emoji,sans-serif" font-weight="bold">';
+    string public svgPartOne = '<svg xmlns="http://www.w3.org/2000/svg" width="270" height="120" fill="none"><path fill="url(#B)" d="M0 0h270v120H0z"/><defs><linearGradient id="B" x1="0" y1="0" x2="270" y2="120" gradientUnits="userSpaceOnUse"><stop stop-color="#ff8844"/><stop offset="1" stop-color="#0cd7e4" stop-opacity=".99"/></linearGradient></defs><text x="32" y="48" font-size="19" fill="#eee" font-family="sans-serif">Ticket</text><text x="32" y="80" font-size="32" fill="#eee" font-family="sans-serif">';
     string public svgPartTwo = '</text></svg>';
 
     /// @notice this contract constructor
@@ -45,7 +45,7 @@ contract RaffleTicket is ERC721Enumerable {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         
-        string memory _ticketNumber = string(abi.encodePacked("Ticket #", Strings.toString(newItemId)));
+        string memory _ticketNumber = string(abi.encodePacked("#", Strings.toString(newItemId)));
         string memory finalSvg = string(
             abi.encodePacked(
                 svgPartOne,
