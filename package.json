@@ -3,6 +3,11 @@
   "description": "A set of simple contracts to manage raffles and tickets as ERC721 tokens",
   "private": true,
   "author": "0xSmartCrypto <0xSmartCrypto@gmail.com>",
+  "scripts": {
+    "local": "npx hardhat run scripts/run.js",
+    "rinkeby": "npx hardhat run scripts/run.js --network rinkeby",
+    "cp": "cp ./artifacts/contracts/*.sol/Domains.json ../anon-domains-frontend/src/utils/contractABI.json"
+  },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",
     "@nomiclabs/hardhat-etherscan": "^3.0.3",

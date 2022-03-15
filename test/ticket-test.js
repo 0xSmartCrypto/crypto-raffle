@@ -1,4 +1,4 @@
-const { expect } = require("chai");
+const { expect, assert } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("Ticket", function () {
@@ -12,7 +12,7 @@ describe("Ticket", function () {
 
     expect(await ticket.getCampaignId()).to.equal(123);
     expect(await ticket.getPrice()).to.equal(10);
-
+    assert.equal(1, 1);
     // const setGreetingTx = await greeter.setGreeting("Hola, mundo!");
     // // wait until the transaction is mined
     // await setGreetingTx.wait();

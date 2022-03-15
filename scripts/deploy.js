@@ -25,16 +25,17 @@ async function main() {
     128, // 128 blocks
     100, // $100
     1000, // 1000 tickets
-    2, // 2 winners
+    1, // 2 winners
     ticket.address
   );
   await raffleCampaign.deployed();
   console.log("RaffleCampaign deployed: ", raffleCampaign.address);
 
   // 3. Mint ticket as user 1
+
   // 4. Mint ticket as user 2
   // 5. Set winners as manager
-  // 6. Verify campaign statess
+  // 6. Verify campaign states
 }
 
 // Use async/await everywhere and properly handle errors.
