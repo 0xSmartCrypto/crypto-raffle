@@ -5,6 +5,7 @@
     "func-visibility": ["warn", { "ignoreConstructors": true }],
     "max-states-count": ["warn", 20],
     "no-empty-blocks": "ignore",
-    "quotes": ["info", "double"]
+    "quotes": ["info", "double"],
+    "avoid-low-level-calls": "info"
   }
 }

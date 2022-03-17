@@ -8,7 +8,7 @@ import "hardhat/console.sol";
 
 /// @title TicketNFT contract interface
 interface ITicketNFT {
-    function mintNFT(string memory tokenURI, address _to) external returns (uint256);
+    function mintNFT(string memory tokenURI, address _to) external returns (uint);
 }
 
 /// @title CampaignState 
@@ -21,11 +21,18 @@ enum CampaignState {
     WinnerSelected
 }
 
+
+/**
+    @todo 
+    - check for max number of tickets sold
+    - 
+ */ 
+
 /// @title RaffleCampaign
 contract RaffleCampaign is Ownable, IERC721Receiver {
 
     /// @dev safemath library
-    using SafeMath for uint256;
+    using SafeMath for uint;
     
     /// @dev declare ticketNFT of ITicketNFT interface
     ITicketNFT public ticketNFT;
@@ -61,17 +68,16 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
     address payable public manager;
 
     /// @dev mappings of this contract
-    mapping (uint => address) public ticketOwner;
+    mapping (uint => address) public ticketOwners;
     mapping (address => uint) public ownerTicketCount;
 
     uint[] public campaignWinners;
 
     /// @dev Events of this contract
-    // event CreateCampaign(bool finished, address tokenaddress);
-    // event TicketBought(uint ticketNum, uint256 tokenId, string tokenUri);
-    // event TicketDrawn(uint ticketId, uint ticketNum);
-    // event DeleteCampaign(bool finished);
-    event WinnerSet(uint[] winners);
+    event CampaignStateChange(CampaignState state);
+    event TicketBought(uint tokenId);
+    event WinnersSet(uint[] winners);
+    event Tickets(uint[] tickets);
 
     /// @notice contract constructor
     /// @param _raffleName is the short name of the raffle, char limit 20
@@ -104,41 +110,42 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
         ticketNFT = ITicketNFT(_ticketNFT);
 
         campaignState = CampaignState.Active;
-
-        // emit CreateCampaign(campaignFinished, _ticketNFT);
-        // emit CampaignActive(campaignFinished, _ticketNFT);
+        emit CampaignStateChange(campaignState);
     }
 
     /// @notice forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
-    function onERC721Received(address, address, uint256, bytes memory) override external pure returns (bytes4) {
+    function onERC721Received(address, address, uint, bytes memory) override external pure returns (bytes4) {
         return IERC721Receiver.onERC721Received.selector;
     }
 
-    // @param _ticketNum is ticket's number to be bought by user.
+
     /**
     @notice function to buy a ticket.
     @dev only users not managers.
     */
     function buyTicket() public payable {
-        // require(ticketOwner[_ticketNum] == address(0), "Ticket can only be sold once.");
-        // require(manager != msg.sender, "Unauthorized to buy ticket.");
-        
         require(campaignState == CampaignState.Active, "Campaign is not active.");
         require(campaignState != CampaignState.Closed, "Campaign is closed.");
         require(msg.value >= ticketPrice, "Not enough funds.");
-        // require(tickets.length < totalTickets, "All the tickets were sold.");
-
-        // tickets.push(_ticketNum);
-        // ticketOwner[_ticketNum] = msg.sender;
-        // ownerTicketCount[msg.sender] = ownerTicketCount[msg.sender].add(1);
 
         console.log(msg.sender, " wants to buyTicket");
-        uint256 _tokenId = ticketNFT.mintNFT(raffleName, msg.sender);
+        uint _tokenId = ticketNFT.mintNFT(raffleName, msg.sender);
         console.log("_tokenId bought: ", _tokenId);
+        
+        // update ownership counters
+        tickets.push(_tokenId);
+        ticketOwners[_tokenId] = msg.sender;
+        ownerTicketCount[msg.sender] = ownerTicketCount[msg.sender].add(1);
+        emit TicketBought(_tokenId);
+        emit Tickets(tickets);
 
-        // emit TicketBought(_ticketNum, _tokenId, _tokenUri);
+        // update campaign state if all tickets are sold
+        console.log("tickets length", tickets.length, "total tickets", totalTickets);
+        if (tickets.length == totalTickets) {
+            campaignState = CampaignState.Closed;
+            emit CampaignStateChange(campaignState);
+        }
     }
-
 
     function getCampaignState() public view returns (CampaignState) {
         return campaignState;
@@ -148,14 +155,13 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
     /// App should call this function after calling chainlink VRF to get number of winning tickets.
     /// Takes in a list of winning ticket numbers
     function setWinners(uint[] memory winners) public onlyOwner {
-        require(campaignState != CampaignState.Closed, "Campaign needs to be closed.");
-        // require(drawnTickets.length > 0, "No winner yet.");
-        // // require(block.timestamp > campaignEnd, "Campaign not finished.");
-        // uint winner = drawnTickets[drawnTickets.length - 1];
-        // uint256 _tokenId = ticketNFT.mintNFT(influencer);
+        require(campaignState == CampaignState.Closed, "Campaign needs to be closed.");
+        require(winners.length == totalWinners, "Number of winners mismatch.");
 
-        campaignWinners = winners; 
-        emit WinnerSet(winners);
+        campaignWinners = winners;
+        campaignState = CampaignState.WinnerSelected;
+        emit CampaignStateChange(campaignState);
+        emit WinnersSet(winners);
     }
 
     // /// @notice function to get current drawn ticket's owner address.
@@ -206,14 +212,31 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
     // function getTotalTicketsPrice() public view returns (uint) {
     //     return ticketPrice * totalTickets;
     // }
-
-    /// @notice function to withdraw balance from contract
-    function withdraw(address _to) public view onlyOwner {
-        console.log("withdraw goes to: ", _to);
-        // uint amount = address(this).balance;
-        // (bool success, ) = msg.sender.call{value: amount}("");
-        // require(success, "Failed to withdraw Matic");
+    function getTickets() public view returns (uint[] memory) {
+        return tickets;
     }
     
+    function getTicketsBought() public view returns (uint) {
+        return tickets.length;
+    }
 
+    function getTotalTickets() public view returns (uint) {
+        return totalTickets;
+    }
+
+    function getContractBalance() public view returns (uint) {
+        return address(this).balance;
+    }
+
+    /// @notice function to withdraw balance from contract
+    function withdraw(address _to) public onlyOwner {
+        uint amount = address(this).balance;
+        require(amount > 0, "No funds to withdraw.");
+
+        require(_to != address(0), "Invalid address.");
+        console.log("withdraw goes to: ", _to);
+        
+        (bool success, ) = _to.call{value: amount}("");
+        require(success, "Failed to withdraw");
+    }
 }

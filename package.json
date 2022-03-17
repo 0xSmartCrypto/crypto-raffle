@@ -6,6 +6,7 @@
   "scripts": {
     "local": "npx hardhat run scripts/run.js",
     "rinkeby": "npx hardhat run scripts/run.js --network rinkeby",
+    "ropsten": "npx hardhat run scripts/run.js --network ropsten", 
     "cp": "cp ./artifacts/contracts/*.sol/Domains.json ../anon-domains-frontend/src/utils/contractABI.json"
   },
   "devDependencies": {
