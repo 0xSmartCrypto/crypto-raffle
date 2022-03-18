@@ -5,8 +5,9 @@
   "author": "0xSmartCrypto <0xSmartCrypto@gmail.com>",
   "scripts": {
     "local": "npx hardhat run scripts/run.js",
-    "rinkeby": "npx hardhat run scripts/run.js --network rinkeby",
-    "ropsten": "npx hardhat run scripts/run.js --network ropsten",
+    "rinkeby": "npx hardhat run scripts/run-rinkeby.js --network rinkeby",
+    "deploy-rinkeby": "npx hardhat run scripts/deploy.js --network rinkeby",
+    "deploy-ropsten": "npx hardhat run scripts/deploy.js --network ropsten",
     "cp": "cp ./artifacts/contracts/*.sol/Domains.json ../anon-domains-frontend/src/utils/contractABI.json"
   },
   "devDependencies": {
@@ -32,7 +33,6 @@
     "solidity-coverage": "^0.7.20"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.5.0",
-    "ws": "^8.5.0"
+    "@openzeppelin/contracts": "^4.5.0"
   }
 }

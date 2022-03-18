@@ -4,38 +4,30 @@ const hre = require("hardhat");
 async function main() {
   // 1. Deploy RaffleTicket
   const RaffleTicket = await hre.ethers.getContractFactory("RaffleTicket");
-  const ticket = await RaffleTicket.deploy();
-  await ticket.deployed();
-  console.log("RaffleTicket deployed to:", ticket.address);
+  const ticketContract = await RaffleTicket.deploy();
+  await ticketContract.deployed();
+  console.log("RaffleTicket deployed to:", ticketContract.address);
 
   // 2. Make a RaffleCampaign with RaffleTicket
-  const RaffleCampaign = await hre.ethers.getContractFactory("RaffleCampaign");
-  /**
-    string memory _raffleName, 
-    string memory _raffleDescription, 
-    uint _deadlineInBlocks,
-    uint _ticketPrice, 
-    uint _totalTickets, 
-    uint _totalWinners, 
-    address _ticketNFT
-   */
-  const raffleCampaign = await RaffleCampaign.deploy(
-    "Raffle Campaign",
-    "Raffle Campaign Description",
-    128, // 128 blocks
-    100, // $100
-    1000, // 1000 tickets
-    1, // 2 winners
-    ticket.address
+  const RaffleCampaignContractFactory = await hre.ethers.getContractFactory(
+    "RaffleCampaign"
   );
-  await raffleCampaign.deployed();
-  console.log("RaffleCampaign deployed: ", raffleCampaign.address);
-
-  // 3. Mint ticket as user 1
-
-  // 4. Mint ticket as user 2
-  // 5. Set winners as manager
-  // 6. Verify campaign states
+  const raffleCampaignContract = await RaffleCampaignContractFactory.deploy(
+    // Raffle Name
+    "Raffle Campaign",
+    // Deadline of n blocks
+    10,
+    // Ticket Price
+    hre.ethers.utils.parseEther("0.01"),
+    // Total tickets available
+    2,
+    // Total 1 winner
+    1,
+    // NFT Ticket Contract address
+    ticketContract.address
+  );
+  await raffleCampaignContract.deployed();
+  console.log("RaffleCampaign deployed: ", raffleCampaignContract.address);
 }
 
 // Use async/await everywhere and properly handle errors.
