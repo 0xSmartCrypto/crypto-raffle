@@ -61,8 +61,8 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
     /// @notice total number of winners per raffle
     uint public totalWinners;
 
-    /// @notice bought tickets array
-    uint[] public tickets;
+    /// @notice counts number of bought tickets 
+    uint public ticketCount;
 
     /// @notice campaign manager's address
     address payable public manager;
@@ -77,7 +77,7 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
     event CampaignStateChange(CampaignState state);
     event TicketBought(uint tokenId);
     event WinnersSet(uint[] winners);
-    event Tickets(uint[] tickets);
+    event NewTicketOwner(address ticketOwner);
 
     /// @notice contract constructor
     /// @param _raffleName is the short name of the raffle, char limit 20
@@ -109,6 +109,7 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
 
         ticketNFT = ITicketNFT(_ticketNFT);
 
+        ticketCount = 0;
         campaignState = CampaignState.Active;
         emit CampaignStateChange(campaignState);
     }
@@ -125,23 +126,24 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
     */
     function buyTicket() public payable {
         require(campaignState == CampaignState.Active, "Campaign is not active.");
-        require(campaignState != CampaignState.Closed, "Campaign is closed.");
         require(msg.value >= ticketPrice, "Not enough funds.");
 
-        console.log(msg.sender, " wants to buyTicket");
+        // console.log(msg.sender, " wants to buyTicket");
         uint _tokenId = ticketNFT.mintNFT(raffleName, msg.sender);
-        console.log("_tokenId bought: ", _tokenId);
+        // console.log("_tokenId bought: ", _tokenId);
         
         // update ownership counters
-        tickets.push(_tokenId);
+        ticketCount++;
         ticketOwners[_tokenId] = msg.sender;
         ownerTicketCount[msg.sender] = ownerTicketCount[msg.sender].add(1);
-        emit TicketBought(_tokenId);
-        emit Tickets(tickets);
+        
+        // console.log("new ticket owner", ticketOwners[_tokenId]);
+        emit NewTicketOwner(ticketOwners[_tokenId]);
 
         // update campaign state if all tickets are sold
-        console.log("tickets length", tickets.length, "total tickets", totalTickets);
-        if (tickets.length == totalTickets) {
+        // console.log("tickets bought", ticketCount, "total tickets", totalTickets);
+        if (ticketCount == totalTickets) {
+            // console.log("All tickets sold. Closing campaign.");
             campaignState = CampaignState.Closed;
             emit CampaignStateChange(campaignState);
         }
@@ -157,7 +159,7 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
     function setWinners(uint[] memory winners) public onlyOwner {
         require(campaignState == CampaignState.Closed, "Campaign needs to be closed.");
         require(winners.length == totalWinners, "Number of winners mismatch.");
-
+        // TODO: require winners to be actual tickets bought
         campaignWinners = winners;
         campaignState = CampaignState.WinnerSelected;
         emit CampaignStateChange(campaignState);
@@ -212,14 +214,17 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
     // function getTotalTicketsPrice() public view returns (uint) {
     //     return ticketPrice * totalTickets;
     // }
-    function getTickets() public view returns (uint[] memory) {
-        return tickets;
-    }
-    
+
+    // function getTickets() public view returns (uint[] memory) {
+    //     return tickets;
+    // }
+
+    // @notice - get total tickets bough    
     function getTicketsBought() public view returns (uint) {
-        return tickets.length;
+        return ticketCount;
     }
 
+    // @notice - function to get total tickets allowed in campaign.
     function getTotalTickets() public view returns (uint) {
         return totalTickets;
     }

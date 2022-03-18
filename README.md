@@ -2,14 +2,13 @@
 
 Crypto Raffle demonstrates the use of `RaffleTicket`, a ERC721 contract to encapsulate a raffle ticket, and `RaffleCampaign`, a contract to manage a raffle.
 
-In a raffle,
+The raffle contract has the below features:
 - A campaign manager can create a raffle, set the ticket price, and set a deadline when the raffle will end.
 - The campaign manager can set up the raffle with one or more winners
 - Participants can pay for a ticket in ETH and mint a ticket to the raffle in the `frontend`(#TBD)
 - Participants can trade their tickets on OpenSea
 - The campaign manager can select raffle winners by drawing verifiablly random numbers from ChainLink oracles
 - Campaign states and selected are recorded on-chain
-
 
 
 # Campaign 

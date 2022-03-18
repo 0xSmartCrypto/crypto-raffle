@@ -69,12 +69,11 @@ contract RaffleTicket is ERC721Enumerable {
             )
         );
         string memory finalTokenUri = string(abi.encodePacked("data:application/json;base64,", json));
-        console.log("\n--------------------------------------------------------");
-        console.log("Final tokenURI", finalTokenUri);
-        console.log("--------------------------------------------------------\n");
+        // console.log("\n--------------------------------------------------------");
+        // console.log("Final tokenURI", finalTokenUri);
+        // console.log("--------------------------------------------------------\n");
         
         _safeMint(msg.sender, newItemId);
-        // _setTokenURI(newItemId, finalTokenUri);
 
         items[newItemId] = Item({
             id: newItemId, 
@@ -96,7 +95,5 @@ contract RaffleTicket is ERC721Enumerable {
 
         return items[tokenId].uri;
     }
-
-
     
 }

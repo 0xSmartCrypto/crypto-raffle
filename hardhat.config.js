@@ -32,7 +32,7 @@ module.exports = {
       ],
     },
     rinkeby: {
-      url: process.env.RINKEBY_URL || "",
+      url: process.env.RINKEBY_HTTPS_URL || "",
       accounts: [
         process.env.OWNER_PRIVATE_KEY,
         process.env.PERSON1_PRIVATE_KEY,

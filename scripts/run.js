@@ -26,7 +26,7 @@ async function main() {
     // Deadline of n blocks
     10,
     // Ticket Price
-    hre.ethers.utils.parseEther("999"),
+    hre.ethers.utils.parseEther("0.01"),
     // Total tickets available
     2,
     // Total 1 winner
@@ -46,13 +46,13 @@ async function main() {
   // 3. Mint ticket as user 1
   const t1 = await raffleCampaignContract
     .connect(person1)
-    .buyTicket({ value: hre.ethers.utils.parseEther("999") });
+    .buyTicket({ value: hre.ethers.utils.parseEther("0.01") });
   console.log("Ticket minted: ", "https://rinkeby.etherscan.io/tx/" + t1.hash);
 
   // 4. Mint ticket as user 2
   const t2 = await raffleCampaignContract
     .connect(person2)
-    .buyTicket({ value: hre.ethers.utils.parseEther("999") });
+    .buyTicket({ value: hre.ethers.utils.parseEther("0.01") });
   console.log("Ticket minted: ", "https://rinkeby.etherscan.io/tx/" + t2.hash);
 
   // 5. Check campaign state:
@@ -62,22 +62,19 @@ async function main() {
 
   const totalTickets = await raffleCampaignContract.getTotalTickets();
   const ticketsBought = await raffleCampaignContract.getTicketsBought();
-  const tickets = await raffleCampaignContract.getTickets();
   console.log(
     "campaign state: ",
     state,
     "tickets bought",
     ticketsBought,
     "total tickets: ",
-    totalTickets,
-    "tickets",
-    tickets
+    totalTickets
   );
 
   // 6. Set winners as manager
   const winner = 2;
   await raffleCampaignContract.connect(owner).setWinners([winner]);
-  console.log("Winners set: ", winner);
+  console.log("Winning numbers are: ", [winner]);
 
   // 7. Check campaign state:
   // should be 2 = WinnersSelected
@@ -98,8 +95,10 @@ async function main() {
 
   // 10. Check account balance
   const accountBalance = await beneficiary.getBalance();
-  console.log("accountBalance", accountBalance);
-
+  console.log(
+    "Beneficiary account balance",
+    hre.ethers.utils.formatEther(accountBalance)
+  );
   // 11. Check contract balance
   const contractBalance = await raffleCampaignContract
     .connect(owner)
