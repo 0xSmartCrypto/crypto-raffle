@@ -14,8 +14,8 @@ The raffle contract has the below features:
 A campaign has the states {`Active`, `Closed`, `WinnerSelected`}. It's `Active` when the raffle is created, `Closed` when the deadline is reached, and `WinnerSelected` when the winners are selected.
 
 # TODO
-  - [x] deadline for campaign
-  - [ ] abstract campaign so RaffleCampaign can be used on multiple raffles
+  - [ ] Frontend
+  - [ ] Abstract campaign so RaffleCampaign can be used on multiple raffles
 
 # Smart Contract
 
