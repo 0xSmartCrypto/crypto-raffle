@@ -168,10 +168,10 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
 
     /// @notice validate winners array to be uint, each member in range of tickets bought
     /// (positive integers less than totalTickets)
-    function validateWinners(winners) public view returns (bool) {
-        for (uint i = 0; i < winners; i++) {
+    function validateWinners(uint[] memory _winners) public view returns (bool) {
+        for (uint i = 0; i < _winners.length; i++) {
             // make sure each "winner" is a valid ticket
-            if (winners[i] > totalTickets || winners[i] < 1) {
+            if (_winners[i] > totalTickets || _winners[i] < 1) {
                 return false;
             }
         }
