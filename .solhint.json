@@ -6,6 +6,7 @@
     "max-states-count": ["warn", 20],
     "no-empty-blocks": "ignore",
     "quotes": ["info", "double"],
-    "avoid-low-level-calls": "info"
+    "avoid-low-level-calls": "info",
+    "not-rely-on-time": "info"
   }
 }

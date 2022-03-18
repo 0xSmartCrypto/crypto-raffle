@@ -21,13 +21,6 @@ enum CampaignState {
     WinnerSelected
 }
 
-
-/**
-    @todo 
-    - check for max number of tickets sold
-    - 
- */ 
-
 /// @title RaffleCampaign
 contract RaffleCampaign is Ownable, IERC721Receiver {
 
@@ -47,7 +40,7 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
     string public raffleDescription;
 
     /// @notice raffle's end date in blocks relative to when the contract is deployed
-    uint public deadlineInBlocks;
+    uint public deadlineInSecs;
     
     /// assumes 6330 blocks per day (Ethereum)
     uint constant public BLOCKS_PER_DAY = 6330;
@@ -63,6 +56,9 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
 
     /// @notice counts number of bought tickets 
     uint public ticketCount;
+
+    /// @notice the block number when the campaign is closed
+    uint public deadline;
 
     /// @notice campaign manager's address
     address payable public manager;
@@ -81,20 +77,20 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
 
     /// @notice contract constructor
     /// @param _raffleName is the short name of the raffle, char limit 20
-    /// @param _deadlineInBlocks is the number of blocks until deadline (at least 1 block, no more than 1 year)
+    /// @param _deadlineInSecs is the number of seconds until deadline (at least 60s, no more than 1 year)
     /// @param _ticketPriceInWei is the price per ticket (in wei)
     /// @param _totalTickets is the total number of tickets (between 2-25000)
     /// @param _totalWinners is the total number of winners
-    /// @param _ticketNFT is the deployed TicketNFT contract address.
+    /// @param _ticketNFT is the deployed RaffleTicket NFT contract address.
     constructor(
         string memory _raffleName,
-        uint _deadlineInBlocks,
+        uint _deadlineInSecs,
         uint _ticketPriceInWei, 
         uint _totalTickets, 
         uint _totalWinners, 
         address _ticketNFT) {
         require(bytes(_raffleName).length <= 20, "Name must be <= 20 chars");
-        require(_deadlineInBlocks > 1 && _deadlineInBlocks <= 365 * BLOCKS_PER_DAY, "Invalid deadline.");
+        require(_deadlineInSecs >= 0 && _deadlineInSecs <= 60 * 60 * 24 * 365, "Invalid deadline.");
         require(_totalTickets > 1 && _totalTickets <= 25000, "Total tickets range 2-25000.");
         require(_totalTickets > _totalWinners, "Tickets should exceed winners.");
 
@@ -105,7 +101,8 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
         totalTickets = _totalTickets;
         totalWinners = _totalWinners;
 
-        deadlineInBlocks = _deadlineInBlocks;
+        deadlineInSecs = _deadlineInSecs;
+        deadline = block.timestamp + deadlineInSecs;
 
         ticketNFT = ITicketNFT(_ticketNFT);
 
@@ -119,18 +116,17 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
         return IERC721Receiver.onERC721Received.selector;
     }
 
-
     /**
     @notice function to buy a ticket.
     @dev only users not managers.
     */
     function buyTicket() public payable {
         require(campaignState == CampaignState.Active, "Campaign is not active.");
+        require(beforeDeadline(), "Past Campaign deadline.");
         require(msg.value >= ticketPrice, "Not enough funds.");
 
-        // console.log(msg.sender, " wants to buyTicket");
         uint _tokenId = ticketNFT.mintNFT(raffleName, msg.sender);
-        // console.log("_tokenId bought: ", _tokenId);
+        // console.log(msg.sender, "bought _tokenId: ", _tokenId);
         
         // update ownership counters
         ticketCount++;
@@ -149,6 +145,10 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
         }
     }
 
+    function beforeDeadline() public view returns (bool) {
+        return block.timestamp <= deadline;
+    }
+
     function getCampaignState() public view returns (CampaignState) {
         return campaignState;
     }
@@ -159,67 +159,54 @@ contract RaffleCampaign is Ownable, IERC721Receiver {
     function setWinners(uint[] memory winners) public onlyOwner {
         require(campaignState == CampaignState.Closed, "Campaign needs to be closed.");
         require(winners.length == totalWinners, "Number of winners mismatch.");
-        // TODO: require winners to be actual tickets bought
+        require(validateWinners(winners), "Winners are not valid.");
         campaignWinners = winners;
         campaignState = CampaignState.WinnerSelected;
         emit CampaignStateChange(campaignState);
         emit WinnersSet(winners);
     }
 
-    // /// @notice function to get current drawn ticket's owner address.
-    // function getCurrentWinnerAddress() public view returns (address) {
-    //     require(drawnTickets.length > 0, "No winner drawn.");
-    //     uint drawnTicketNum = drawnTickets[drawnTickets.length - 1];
-    //     return ticketOwner[drawnTicketNum];
-    // }
+    /// @notice validate winners array to be uint, each member in range of tickets bought
+    /// (positive integers less than totalTickets)
+    function validateWinners(winners) public view returns (bool) {
+        for (uint i = 0; i < winners; i++) {
+            // make sure each "winner" is a valid ticket
+            if (winners[i] > totalTickets || winners[i] < 1) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /// @notice validate msg.sender is changing their own, OR some other way to validate
+    function changeTicketOwner(uint _tokenId, address _newOwner) public {    
+        require(msg.sender == ticketOwners[_tokenId], "Only owner can change ownership.");
+        ticketOwners[_tokenId] = _newOwner;
+    }
 
-    // /// @notice function to get total sold tickets count.
-    // function getBoughtTicketsCount() public view returns (uint) {
-    //     return tickets.length + drawnTickets.length;
-    // }
+    /// @notice function to get one owner's total tickets count.
+    /// @param _owner is one owner's address.
+    function getOwnerTicketsCount(address _owner) public view returns (uint) {
+        return ownerTicketCount[_owner];
+    }
 
-    // /// @notice function to get undrawned tickets count in sold tickets.
-    // function getUndrawnTicketsCount() public view returns (uint) {
-    //     return tickets.length;
-    // }
+    /// @notice function to get one owner's total tickets price.
+    /// @param _owner is one owner's address.
+    function getOwnerTicketsPrice(address _owner) public view returns (uint) {
+        return ticketPrice * ownerTicketCount[_owner];
+    }
 
-    // /// @notice function to get total drawn tickets count.
-    // function getDrawnTicketsCount() public view returns (uint) {
-    //     return drawnTickets.length;
-    // }
+    /// @notice function to get total earnings from ticket sales.
+    function getTotalEarnings() public view returns (uint) {
+        return ticketPrice * totalTickets;
+    }
 
-    // /// @notice function to get one owner's total tickets count.
-    // /// @param _owner is one owner's address.
-    // function getOwnerTicketsCount(address _owner) public view returns (uint) {
-    //     return ownerTicketCount[_owner];
-    // }
+    // @notice - get winning numbers for this campaign
+    function getWinners() public view returns (uint[] memory) {
+        return campaignWinners;
+    }
 
-    // /// @notice function to get one owner's total tickets price.
-    // /// @param _owner is one owner's address.
-    // function getOwnerTicketsPrice(address _owner) public view returns (uint) {
-    //     return ticketPrice * ownerTicketCount[_owner];
-    // }
-
-    // /// @notice function to get remained tickets count.
-    // function getRemainTickets() public view returns (uint) {
-    //     return totalTickets - (tickets.length + drawnTickets.length);
-    // }
-
-    // /// @notice function to get total sold tickets price.
-    // function getBoughtTicketsPrice() public view returns (uint) {
-    //     return ticketPrice * (tickets.length + drawnTickets.length);
-    // }
-
-    // /// @notice function to get total tickets price.
-    // function getTotalTicketsPrice() public view returns (uint) {
-    //     return ticketPrice * totalTickets;
-    // }
-
-    // function getTickets() public view returns (uint[] memory) {
-    //     return tickets;
-    // }
-
-    // @notice - get total tickets bough    
+    // @notice - get total tickets bought
     function getTicketsBought() public view returns (uint) {
         return ticketCount;
     }

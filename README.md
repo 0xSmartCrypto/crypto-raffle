@@ -9,17 +9,20 @@ The raffle contract has the below features:
 - Participants can trade their tickets on OpenSea
 - The campaign manager can select raffle winners by drawing verifiablly random numbers from ChainLink oracles
 - Campaign states and selected are recorded on-chain
-
-
 # Campaign 
 
 A campaign has the states {`Active`, `Closed`, `WinnerSelected`}. It's `Active` when the raffle is created, `Closed` when the deadline is reached, and `WinnerSelected` when the winners are selected.
+
+# TODO
+  - [x] deadline for campaign
+  - [ ] abstract campaign so RaffleCampaign can be used on multiple raffles
 
 # Smart Contract
 
 The smart contract is deployed to the Rinkeby testnet at:
 
 `<address>`
+
 
 
 

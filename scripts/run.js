@@ -24,7 +24,7 @@ async function main() {
     // Raffle Name
     "Raffle Campaign",
     // Deadline of n blocks
-    10,
+    2,
     // Ticket Price
     hre.ethers.utils.parseEther("0.01"),
     // Total tickets available
