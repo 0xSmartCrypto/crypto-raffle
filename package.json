@@ -7,8 +7,7 @@
     "local": "npx hardhat run scripts/run.js",
     "rinkeby": "npx hardhat run scripts/run-rinkeby.js --network rinkeby",
     "deploy-rinkeby": "npx hardhat run scripts/deploy.js --network rinkeby",
-    "deploy-ropsten": "npx hardhat run scripts/deploy.js --network ropsten",
-    "cp": "cp ./artifacts/contracts/*.sol/Domains.json ../anon-domains-frontend/src/utils/contractABI.json"
+    "deploy-ropsten": "npx hardhat run scripts/deploy.js --network ropsten"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",

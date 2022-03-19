@@ -13,17 +13,41 @@ The raffle contract has the below features:
 
 A campaign has the states {`Active`, `Closed`, `WinnerSelected`}. It's `Active` when the raffle is created, `Closed` when the deadline is reached, and `WinnerSelected` when the winners are selected.
 
+# Deploy locally
+
+1. Clone this repo and install dependencies with `npm install`
+2. Make a copy of `.env.sample` and rename it to `.env`, fill in the required values (see below)
+3. Edit `scripts/run.js` to your liking
+4. Run `npm run dev`
+
+# Running tests
+
+1. Edit `test/raffle-test.js` and `test/ticket-test.js` to your liking
+2. Run `npx hardhat test`
+
+# Configuring .env
+
+Must have:
+
+`OWNER_PRIVATE_KEY`, `PERSON1_PRIVATE_KEY`, `PERSON2_PRIVATE_KEY`: these are the private keys of EOA accounts you can export using this [Metamask tutorial](https://metamask.zendesk.com/hc/en-us/articles/360015289632-How-to-Export-an-Account-Private-Key)
+
+For Rinkeby:
+
+`RINKEBY_HTTPS_URL`: the URL of your Rinkeby testnet node from Infura, Alchemy, or any other compatible solution (e.g. `https://rinkeby.infura.io/v3/<your-infura-project-id>` or `https://eth-rinkeby.alchemyapi.io/v2/<your-alchemy-project-api-key>`)
+
+
+# Deploying to Rinkeby
+
+Run `npm run rinkeby`
+
+As of writing of this README, the smart contracts were deployed to the Rinkeby testnet at:
+- RaffleTicket deployed to: `0xc2b86849bdC94467DCd5a729E5c3C492539CeF4a`
+- RaffleCampaign deployed to:  `0xD794e049e890b7d529FaB89B544F4cd5928d0581`
+
+
 # TODO
   - [ ] Frontend
   - [ ] Abstract campaign so RaffleCampaign can be used on multiple raffles
-
-# Smart Contract
-
-The smart contract is deployed to the Rinkeby testnet at:
-
-`<address>`
-
-
 
 
 Below is the default documentation from the `Advanced Sample Hardhat Project` template.

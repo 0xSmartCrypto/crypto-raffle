@@ -88,10 +88,7 @@ async function main() {
   console.log("Contract balance: ", hre.ethers.utils.formatEther(balance));
 
   // 9. Withdraw funds as owner to another address
-  await raffleCampaignContract
-    .connect(owner)
-    // .withdraw(process.env.BENEFICIARY_ADDRESS_LOCAL);
-    .withdraw(beneficiary.address);
+  await raffleCampaignContract.connect(owner).withdraw(beneficiary.address);
 
   // 10. Check account balance
   const accountBalance = await beneficiary.getBalance();
